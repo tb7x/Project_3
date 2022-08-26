@@ -7,6 +7,10 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 
 contract NFT is ERC721Enumerable, Ownable{
     using Strings for uint256;
+    modifier onlyOwner override {
+      require(msg.sender == owner);
+      _;
+    }
 
     string baseURI;
     string public setBaseExtension = ".json";
@@ -27,7 +31,7 @@ contract NFT is ERC721Enumerable, Ownable{
         setNotRevealedURI(_initNotRevealedURI);
     }
 
-    function mint(uint256 _mintAmount)pulic payable {
+    function mint(uint256 _mintAmount) public payable {
         uint256 supply = totalSupply();
         require(!paused);
         require(_mintAmount > 0);
@@ -64,50 +68,51 @@ contract NFT is ERC721Enumerable, Ownable{
   returns (string memory)
   {
       require(
-          _exists(_tokenId),
+          _exists(tokenIds),
           "ERC721metadata: URI query for nonexistent token"
       );
 
       if(revealed == false) {
-          return notRevealedUri;
+          return notRevealedURI;
       }
 
       string memory currentBaseURI = _baseURI();
       return bytes(currentBaseURI). length > 0
-      ? string(abi.encodePacked(currentBaseURI, _tokenId.toString(), baseExtension))
-      :"";
+      ? string(abi.encodePacked(currentBaseURI, tokenIds.toString(), baseExtension))
+      _;
   }
 //this part of the code is for the owner to control 
-  function reveal() public OnlyOwner {
+  function revealToken() public onlyOwner {
     reveal = true;
   }
-  function setCost(unit256 newCost_) public onlyOwner {
+  function setCost(uint256 newCost_) public onlyOwner {
       cost = newCost_;
   }
-  function setMaxMintAmount(unint256 newMaxMintAmount_) public onlyOwner {
+  function setMaxMintAmount(uint256 newMaxMintAmount_) public onlyOwner {
       maxMintAmount = newMaxMintAmount_;
   }
   //The not reveal function is for when the nft is initially bought and everyone has the same still nft picture. When the nft is revealed the picture changes to the unique nft.
-  function setNotRevealedURI(string memory setNotRevealedURI_) public onlyOwner {
+  function setNotRevealedURI(string memory notRevealedURI_) public onlyOwner {
       notRevealedURI = notRevealedURI_;
   }
   function setBaseURI(string memory newBaseURI_) public onlyOwner {
       baseURI = newBaseURI_;
   }
-  function setBaseExtension(string memory newBaseExtention_) public onlyOwner {
-      baseExtention = newBaseExtention_;
+  function setBaseExtension(string memory newBaseExtension_) public onlyOwner {
+      baseExtension = newBaseExtension_;
   }
   function pause (bool state_)public onlyOwner {
       paused = state_;
   }
   function withdraw() public payable onlyOwner {
       //this part of the code is for the creator to be paid a percentage (7%) of the initial sale.
-      (bool hs,) = payable(0x943590A42C27D08e3744202c4Ae5eD55c2dE240D).call{value: address(this).balance * 7/100(""),
-      require: hs
+      bool hs = payable(0x943590A42C27D08e3744202c4Ae5eD55c2dE240D).call{value: address(this).balance * 7/100};
+      require (hs);
       //this end part is needed in order to withdraw funds that are made from the sale (DO NOT REMOVE)
-      (bool os,) = payable(owner()).call{value: address(this).balance}(""),
+      bool os = payable(owner()).call{value: address(this).balance}("");
       require (os);
   }
+}
 
 
 
