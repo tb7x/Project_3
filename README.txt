@@ -20,6 +20,7 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 ---
 
 ##Conclusion
+
 In conclusion we were not able to get the contract to work but hopefully after working on it some more we will be able to implement it in the future.
 
 
